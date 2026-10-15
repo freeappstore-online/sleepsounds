@@ -5,11 +5,13 @@
 import { GeneratorBase, type Generator } from './base'
 import { OnePoleHP } from './dsp'
 import { BrownNoise, PinkNoise, WhiteNoise } from './noise'
+import { Fan, Fire, Rain, Stream, Waves, Wind } from './textures'
 
 export type { Generator } from './base'
 
 export const NOISE_KINDS = ['white', 'pink', 'brown'] as const
-export const SOUND_KINDS = [...NOISE_KINDS] as const
+export const TEXTURE_KINDS = ['rain', 'waves', 'wind', 'fan', 'fire', 'stream'] as const
+export const SOUND_KINDS = [...NOISE_KINDS, ...TEXTURE_KINDS] as const
 
 export type SoundKind = (typeof SOUND_KINDS)[number]
 
@@ -50,6 +52,12 @@ const FACTORIES: Record<SoundKind, new (sampleRate: number, seed: number) => Gen
   white: White,
   pink: Pink,
   brown: Brown,
+  rain: Rain,
+  waves: Waves,
+  wind: Wind,
+  fan: Fan,
+  fire: Fire,
+  stream: Stream,
 }
 
 export function createGenerator(kind: SoundKind, sampleRate: number, seed: number): Generator {

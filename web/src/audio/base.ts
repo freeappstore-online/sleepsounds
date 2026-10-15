@@ -23,11 +23,18 @@ export abstract class GeneratorBase implements Generator {
     this.rng = new Rng(seed)
   }
 
+  private untilControl = 0
+
   process(out: Float32Array): void {
-    for (let start = 0; start < out.length; start += CHUNK) {
-      const end = Math.min(start + CHUNK, out.length)
-      this.control(end - start)
-      for (let i = start; i < end; i++) out[i] = softLimit(this.sample())
+    // The control clock runs across calls, so the output is the same
+    // whatever block size the caller uses.
+    for (let i = 0; i < out.length; i++) {
+      if (this.untilControl === 0) {
+        this.control(CHUNK)
+        this.untilControl = CHUNK
+      }
+      this.untilControl--
+      out[i] = softLimit(this.sample())
     }
   }
 

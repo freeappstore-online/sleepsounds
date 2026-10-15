@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { OnePoleHP, OnePoleLP, Rng, softLimit } from './dsp'
+import { BandPass, Drift, OnePoleHP, OnePoleLP, Rng, softLimit } from './dsp'
 
 describe('Rng', () => {
   it('replays the same sequence for the same seed', () => {
@@ -73,5 +73,63 @@ describe('softLimit', () => {
       expect(y - prev).toBeLessThan(0.0101)
       prev = y
     }
+  })
+})
+
+describe('BandPass', () => {
+  const sr = 48000
+  const through = (f: BandPass, hz: number) => {
+    let s = 0
+    for (let i = 0; i < sr; i++) {
+      const y = f.process(Math.sin((2 * Math.PI * hz * i) / sr))
+      if (i >= sr / 2) s += y * y
+    }
+    return Math.sqrt(s / (sr / 2))
+  }
+
+  it('passes its centre at unity and cuts either side', () => {
+    expect(through(new BandPass(sr, 1000, 2), 1000)).toBeCloseTo(Math.SQRT1_2, 2)
+    expect(through(new BandPass(sr, 1000, 2), 100)).toBeLessThan(0.05)
+    expect(through(new BandPass(sr, 1000, 2), 10000)).toBeLessThan(0.05)
+  })
+
+  it('can be retuned while running', () => {
+    const f = new BandPass(sr, 300, 2)
+    f.set(3000)
+    expect(through(f, 3000)).toBeCloseTo(Math.SQRT1_2, 2)
+  })
+
+  it('stays stable when asked for frequencies above Nyquist', () => {
+    const f = new BandPass(sr, 40000, 1)
+    expect(Number.isFinite(through(f, 1000))).toBe(true)
+  })
+})
+
+describe('Drift', () => {
+  it('wanders within [0, 1] without jumps', () => {
+    const d = new Drift(new Rng(5), 1000, 2)
+    let prev = d.step()
+    let lo = 1
+    let hi = 0
+    for (let i = 0; i < 100_000; i++) {
+      const v = d.step()
+      expect(Math.abs(v - prev)).toBeLessThan(0.01)
+      lo = Math.min(lo, v)
+      hi = Math.max(hi, v)
+      prev = v
+    }
+    expect(lo).toBeGreaterThanOrEqual(0)
+    expect(hi).toBeLessThanOrEqual(1)
+    expect(hi - lo).toBeGreaterThan(0.8)
+  })
+
+  it('gives the same path whether stepped one sample or many at a time', () => {
+    const a = new Drift(new Rng(9), 1000, 3)
+    const b = new Drift(new Rng(9), 1000, 3)
+    let va = 0
+    for (let i = 0; i < 5000; i++) va = a.step()
+    let vb = 0
+    for (let i = 0; i < 100; i++) vb = b.step(50)
+    expect(vb).toBeCloseTo(va, 10)
   })
 })
