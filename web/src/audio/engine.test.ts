@@ -465,3 +465,24 @@ describe('AudioEngine sleep-timer fade', () => {
     expect(fade().gain.calls).toHaveLength(fadeCalls)
   })
 })
+
+describe('AudioEngine resume after an interruption', () => {
+  it('resumes a suspended context when something should be playing', async () => {
+    const { engine, ctx } = setup()
+    await engine.play('rain')
+    ctx().state = 'suspended'
+    await engine.resume()
+    expect(ctx().resumes).toBe(2)
+    expect(ctx().state).toBe('running')
+  })
+
+  it('leaves a quiet or running context alone', async () => {
+    const { engine, ctx } = setup()
+    await engine.resume()
+    await engine.unlock()
+    ctx().state = 'suspended'
+    await engine.resume()
+    expect(ctx().resumes).toBe(1)
+  })
+})
+

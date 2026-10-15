@@ -313,4 +313,14 @@ export class AudioEngine {
     const from = progressAt(curveAt)
     param.setValueCurveAtTime(fadeCurve(points, from), start, seconds)
   }
+
+  /**
+   * Resume audio the system suspended or interrupted (a phone call, iOS
+   * backgrounding) if anything should be playing. Safe to call any time.
+   */
+  resume(): Promise<void> {
+    const ctx = this.ctx
+    if (!ctx || ctx.state === 'running' || this.playing().length === 0) return Promise.resolve()
+    return ctx.resume().catch(() => {})
+  }
 }

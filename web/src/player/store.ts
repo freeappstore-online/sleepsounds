@@ -46,6 +46,14 @@ export function dispatch(action: PlayerAction): Promise<void> {
   })
 }
 
+export function subscribePlayer(fn: () => void): () => void {
+  return subscribe(fn)
+}
+
+export function getPlayerState(): PlayerState {
+  return current
+}
+
 function subscribe(fn: () => void): () => void {
   listeners.add(fn)
   return () => listeners.delete(fn)

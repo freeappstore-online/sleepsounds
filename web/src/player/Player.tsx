@@ -2,6 +2,7 @@ import { type CSSProperties, useEffect, useId, useState } from 'react'
 import { PageHeader } from '@freeappstore/sdk/ui'
 import { MAX_BEAT_HZ, MIN_BEAT_HZ, formatBeat } from '../audio'
 import { HeadphonesIcon, PauseIcon, PlayIcon, SoundIcon, StopIcon, VolumeIcon } from './icons'
+import { PlaybackCard } from './PlaybackCard'
 import { SleepTimerButton } from './SleepTimer'
 import { SOUNDS, soundName, type SoundInfo } from './sounds'
 import { isPlaying, statusText, type PlayerAction, type PlayerState } from './state'
@@ -55,6 +56,7 @@ export function Player() {
             {error}
           </p>
         )}
+        <PlaybackCard />
       </div>
       <PlayerBar state={state} act={act} />
     </div>

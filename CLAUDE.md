@@ -1,7 +1,7 @@
 # sleepsounds
 
 Sleep Sounds: a white-noise and sleep-sound generator on FreeAppStore, every sound generated
-with Web Audio. Sounds (player: sound grid, per-sound volume, play/pause, sleep timer), Mixes (saved presets, local + fas.kv sync), About; see
+with Web Audio. Sounds (player: sound grid, per-sound volume, play/pause, sleep timer, background playback), Mixes (saved presets, local + fas.kv sync), About; see
 freeappstore-online/platform#162.
 
 - Live: https://sleepsounds.freeappstore.online
@@ -19,5 +19,9 @@ freeappstore-online/platform#162.
 - Audio lives in `web/src/audio/`: pure generators (no Web Audio, unit-tested) run inside an
   AudioWorklet (`worklet.ts`); `engine.ts` owns the AudioContext, master gain and per-sound
   fades. Every gain change is a ramp. No audio files and no looped buffers.
+
+- Lock-screen controls and background play rely on a silent generated `<audio>` element plus
+  Media Session (`web/src/player/background.ts`); iOS limits are stated in the UI. Device
+  checklist: `docs/background-playback.md`.
 
 Platform conventions: https://raw.githubusercontent.com/freeappstore-online/freeappstore/main/SKILLS.md
