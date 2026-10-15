@@ -5,11 +5,12 @@ import { BuildInfo, type NavItem, PageHeader, Shell } from '@freeappstore/sdk/ui
 const fas = initApp({ appId: 'sleepsounds' })
 
 // The app's screens. Shell renders them as its navbar (<nav aria-label="Main">,
-// current screen highlighted, a menu on phones). Add one entry per screen;
-// `title` becomes the browser tab title on that route.
+// current screen highlighted, a menu on phones). `title` becomes the browser
+// tab title on that route.
 const NAV: NavItem[] = [
-  { label: 'Home', href: '/', title: 'sleepsounds' },
-  { label: 'About', href: '/about', title: 'About — sleepsounds' },
+  { label: 'Sounds', href: '/', title: 'Sounds — Sleep Sounds' },
+  { label: 'Mixes', href: '/mixes', title: 'Mixes — Sleep Sounds' },
+  { label: 'About', href: '/about', title: 'About — Sleep Sounds' },
 ]
 
 export default function App() {
@@ -30,26 +31,60 @@ export default function App() {
   }
 
   return (
-    <Shell app={fas} appName="sleepsounds" nav={NAV} onNavigate={navigate}>
+    <Shell app={fas} appName="Sleep Sounds" nav={NAV} onNavigate={navigate}>
       <div className="mx-auto w-full max-w-3xl p-4 sm:p-8">
-        {path === '/about' ? <About /> : <Home />}
+        <Screen path={path} />
       </div>
       <BuildInfo />
     </Shell>
   )
 }
 
-function Home() {
-  return <PageHeader title="sleepsounds" description="Edit web/src/App.tsx to start building." />
+function Screen({ path }: { path: string }) {
+  switch (path) {
+    case '/mixes':
+      return (
+        <>
+          <PageHeader title="Mixes" description="Save the sounds you like together and come back to them." />
+          <ComingSoon />
+        </>
+      )
+    case '/about':
+      return (
+        <>
+          <PageHeader title="About" />
+          <ComingSoon />
+          <p className="mt-4 text-[var(--muted)]">
+            Sleep Sounds will be a noise machine: white, pink and brown noise, rain, ocean waves,
+            wind, a fan, a fireplace and a stream, mixed however you like with a sleep timer. Every
+            sound will be generated on your device, so there are no audio files to download and it
+            works offline.
+          </p>
+          <p className="mt-4 text-[var(--muted)]">
+            Sleep Sounds is a free, MIT-licensed app on{' '}
+            <a href="https://freeappstore.online" className="underline">
+              FreeAppStore
+            </a>
+            .
+          </p>
+        </>
+      )
+    default:
+      return (
+        <>
+          <PageHeader title="Sounds" description="White noise, rain, ocean and more, with a sleep timer." />
+          <ComingSoon />
+        </>
+      )
+  }
 }
 
-function About() {
+// Placeholder body until the screens are built. Nothing plays yet, so it says
+// so plainly.
+function ComingSoon() {
   return (
-    <>
-      <PageHeader title="About" />
-      <p className="text-[var(--muted)]">
-        sleepsounds is a free app on <a href="https://freeappstore.online" className="underline">FreeAppStore</a>.
-      </p>
-    </>
+    <p className="rounded-[var(--radius)] border border-[var(--line)] bg-[var(--panel)] p-4 text-[var(--muted)]">
+      Coming soon. Sleep Sounds is in development; it doesn't play any sounds yet.
+    </p>
   )
 }
