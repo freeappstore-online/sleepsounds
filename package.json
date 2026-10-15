@@ -1,0 +1,15 @@
+{
+  "name": "sleepsounds",
+  "private": true,
+  "packageManager": "pnpm@10.30.3",
+  "engines": { "node": ">=22" },
+  "pnpm": { "onlyBuiltDependencies": ["esbuild"] },
+  "repository": { "type": "git", "url": "git+https://github.com/freeappstore-online/sleepsounds.git" },
+  "scripts": {
+    "dev": "pnpm --filter @sleepsounds/web dev",
+    "build": "pnpm --filter @sleepsounds/web build",
+    "preview": "pnpm --filter @sleepsounds/web preview",
+    "typecheck": "pnpm --filter @sleepsounds/web exec tsc -b",
+    "test": "pnpm --filter @sleepsounds/web exec tsc -b"
+  }
+}
