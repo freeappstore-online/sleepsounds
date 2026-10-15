@@ -15,7 +15,9 @@ freeappstore-online/platform#162.
 ## Notes
 
 - Fonts are self-hosted (`@fontsource-variable/*`); the app makes no third-party requests
-  beyond the platform API and analytics loader. Keep it that way.
+  beyond the platform API and analytics loader. Keep it that way. On the live host the
+  platform edge also injects Cloudflare Web Analytics (static.cloudflareinsights.com);
+  About > Privacy discloses both.
 
 - Audio lives in `web/src/audio/`: pure generators (no Web Audio, unit-tested) run inside an
   AudioWorklet (`worklet.ts`); `engine.ts` owns the AudioContext, master gain and per-sound

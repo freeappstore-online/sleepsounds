@@ -10,8 +10,8 @@
     <meta name="darkreader-lock" />
     <link rel="manifest" href="/manifest.json" />
     <script>
-      // Set theme + loading background before first paint. Prevents flash.
-      // Devs: change the colors below to match your app's brand.
+      // Set the theme and background before first paint, so there is no flash
+      // of the wrong colours.
       // Sleep Sounds is dark by default (it's used in the dark). The first
       // visit stores 'dark' as the theme so the Shell's toggle agrees; after
       // that, the user's choice from the toggle wins.
@@ -25,7 +25,7 @@
       document.documentElement.style.background = d ? '#000000' : '#ffffff';
     </script>
     <title>Sleep Sounds — FreeAppStore</title>
-    <meta name="description" content="White noise, rain, ocean and more, generated on your device. Mix sounds and set each one's volume." />
+    <meta name="description" content="White noise, rain, ocean and more, generated on your device" />
     <!-- Platform analytics loader. CF Web Analytics is auto-provisioned at publish;
          GA4 / Plausible / custom <head> are opt-in via PUT /v1/apps/sleepsounds/analytics. -->
     <script src="https://api.freeappstore.online/v1/analytics.js?app=sleepsounds" defer></script>

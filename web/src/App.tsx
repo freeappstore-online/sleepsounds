@@ -88,8 +88,20 @@ function Screen({ path, navigate }: { path: string; navigate: (href: string) => 
             nothing else is.
           </li>
           <li>
-            The only analytics are the FreeAppStore platform's own page counts; Sleep Sounds adds no
-            trackers of its own.
+            Page-view counts: the app loads FreeAppStore's store analytics script, which records which
+            screen you opened (for example /mixes), the page that linked here, and the time. It's sent
+            to FreeAppStore without cookies and without your account, and held in this browser while
+            you're offline. Your sounds and mixes are never included.
+          </li>
+          <li>
+            Sleep Sounds is served via FreeAppStore, which also loads Cloudflare Web Analytics
+            (beacon.min.js from static.cloudflareinsights.com). It doesn't use cookies and reports only
+            aggregate page-view statistics, such as page load times and visit counts. As with any
+            website, the servers handling these requests see your IP address and browser type.
+          </li>
+          <li>
+            No ads, no tracking cookies and no advertising or tracking SDKs. The only third-party
+            script is the Cloudflare Web Analytics beacon above.
           </li>
         </ul>
       </section>
