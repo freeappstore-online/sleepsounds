@@ -72,6 +72,27 @@ function Screen({ path, navigate }: { path: string; navigate: (href: string) => 
         health or medical claims about them or any other sound. They need headphones; keep the volume
         low.
       </p>
+      <section aria-labelledby="privacy" className="ss-card mt-6">
+        <h2 id="privacy" className="ss-card-title">
+          Privacy
+        </h2>
+        <ul className="ss-privacy">
+          <li>Sleep Sounds never uses your microphone and never asks for it.</li>
+          <li>
+            Nothing is recorded or uploaded. Every sound is generated on your device, and no audio
+            leaves it.
+          </li>
+          <li>
+            Your mix, volumes, sleep timer and saved mixes are stored on this device. If you sign in,
+            saved mixes are also kept in your FreeAppStore account so they're on your other devices;
+            nothing else is.
+          </li>
+          <li>
+            The only analytics are the FreeAppStore platform's own page counts; Sleep Sounds adds no
+            trackers of its own.
+          </li>
+        </ul>
+      </section>
       <p className="mt-4 text-[var(--muted)]">
         Sleep Sounds is a free, MIT-licensed app on{' '}
         <a href="https://freeappstore.online" className="underline">

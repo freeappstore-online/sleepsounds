@@ -1,6 +1,6 @@
 import { type FormEvent, useId, useState } from 'react'
-import { createPortal } from 'react-dom'
-import { Modal, useToast } from '@freeappstore/sdk/ui'
+import { useToast } from '@freeappstore/sdk/ui'
+import { Dialog } from './Dialog'
 import { MoonIcon } from './icons'
 import { PRESET_MINUTES, formatMinutes, formatRemaining, parseMinutes, spokenRemaining } from './timer'
 import { sleepTimer, useSleepTimer } from './timerApp'
@@ -27,14 +27,9 @@ export function SleepTimerButton() {
           {timer ? (phase === 'fading' ? `Fading · ${formatRemaining(remainingMs)}` : formatRemaining(remainingMs)) : 'Timer'}
         </span>
       </button>
-      {/* Portalled to <body>: the player bar's backdrop blur would otherwise
-          trap the dialog's fixed overlay inside the bar. */}
-      {createPortal(
-        <Modal open={open} onClose={() => setOpen(false)} title="Sleep timer">
-          <TimerDialog onDone={() => setOpen(false)} />
-        </Modal>,
-        document.body,
-      )}
+      <Dialog open={open} onClose={() => setOpen(false)} title="Sleep timer">
+        <TimerDialog onDone={() => setOpen(false)} />
+      </Dialog>
     </>
   )
 }

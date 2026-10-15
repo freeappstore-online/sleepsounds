@@ -8,6 +8,7 @@ freeappstore-online/platform#162.
 - Dev: `pnpm install && pnpm dev`
 - Build: `pnpm build`
 - Test: `pnpm test` (vitest; audio engine, player state, presets + sync, sleep timer)
+- E2E: `pnpm e2e` (builds, then Playwright in `e2e/`: play, mix, presets, timer, background, offline, a11y)
 - Check: `fas check`; layout: `pnpm build && fas screencheck --skip-build` (the screen must never scroll; screens scroll inside the app frame)
 - Deploy: `git push origin main` (auto-deploys to R2 via GitHub Actions)
 

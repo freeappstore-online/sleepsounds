@@ -72,6 +72,7 @@ function SoundTile({ sound, state, act }: Props & { sound: SoundInfo }) {
   const on = state.active.includes(sound.kind)
   const audible = on && !state.paused
   const volume = state.volumes[sound.kind]
+  const id = useId()
   return (
     <li
       className="ss-tile"
@@ -83,14 +84,20 @@ function SoundTile({ sound, state, act }: Props & { sound: SoundInfo }) {
         type="button"
         className="ss-tile-toggle"
         aria-pressed={on}
+        // Named just by the sound; on/off comes from aria-pressed, and the
+        // note (Paused, Headphones…) is read as a description.
+        aria-labelledby={`${id}-name`}
+        aria-describedby={`${id}-note`}
         onClick={() => act({ type: 'toggle', kind: sound.kind })}
       >
         <span className="ss-tile-icon">
           <SoundIcon kind={sound.kind} />
         </span>
         <span className="ss-tile-text">
-          <span className="ss-tile-name">{sound.name}</span>
-          <span className="ss-tile-note">{sound.note ?? (on ? (state.paused ? 'Paused' : 'Playing') : 'Off')}</span>
+          <span id={`${id}-name`} className="ss-tile-name">
+            {sound.name}
+          </span>
+          <span id={`${id}-note`} className="ss-tile-note">{sound.note ?? (on ? (state.paused ? 'Paused' : 'Playing') : 'Off')}</span>
         </span>
         <span className="ss-tile-dot" aria-hidden="true" />
       </button>

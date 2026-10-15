@@ -1,6 +1,7 @@
 import { type CSSProperties, type FormEvent, useId, useState } from 'react'
 import { useAuth } from '@freeappstore/sdk/hooks'
-import { ConfirmDialog, PageHeader, useToast } from '@freeappstore/sdk/ui'
+import { PageHeader, useToast } from '@freeappstore/sdk/ui'
+import { ConfirmDialog } from './Dialog'
 import { fas } from '../fas'
 import { PauseIcon, PencilIcon, PlayIcon, SoundIcon, TrashIcon } from './icons'
 import { MAX_NAME_LENGTH, type Preset, isCurrent, presetSummary } from './presets'
@@ -224,7 +225,6 @@ function PresetRow({ preset, act, signedIn }: { preset: Preset; act: (a: PlayerA
             : 'This removes the saved mix. The sounds themselves stay.'
         }
         confirmLabel="Delete"
-        variant="danger"
         onCancel={() => setConfirming(false)}
         onConfirm={() => {
           setConfirming(false)

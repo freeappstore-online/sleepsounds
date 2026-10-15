@@ -14,7 +14,8 @@ timer that fades the sound out gently. Progress is tracked in
 pnpm install
 pnpm dev      # local dev server
 pnpm build    # production build in web/dist
-pnpm test     # unit tests (audio engine)
+pnpm test     # unit tests (vitest)
+pnpm e2e      # build + end-to-end and accessibility tests (Playwright)
 fas check     # FreeAppStore compliance checks
 ```
 
