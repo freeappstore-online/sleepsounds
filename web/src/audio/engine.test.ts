@@ -1,10 +1,12 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { DEFAULT_BEAT_HZ, MAX_BEAT_HZ, MIN_BEAT_HZ } from './binaural'
+import { fadeGainAt } from './fade'
 import {
   AudioEngine,
   DEFAULT_VOLUME,
   FADE_SECONDS,
   VOLUME_RAMP_SECONDS,
+  FADE_RESET_SECONDS,
   rampParam,
   sourceOptions,
   volumeToGain,
@@ -28,6 +30,9 @@ class FakeParam {
   }
   setValueAtTime(v: number, t: number) {
     this.calls.push(['set', v, t])
+  }
+  setValueCurveAtTime(curve: Float32Array, start: number, duration: number) {
+    this.calls.push(['curve', curve.length, start, duration, curve[0], curve[curve.length - 1]])
   }
   linearRampToValueAtTime(v: number, t: number) {
     this.calls.push(['ramp', v, t])
@@ -99,7 +104,7 @@ class FakeContext {
   }
 }
 
-function setup(opts: { worklet?: boolean; failFirstLoad?: boolean } = {}) {
+function setup(opts: { worklet?: boolean; failFirstLoad?: boolean; now?: () => number } = {}) {
   const contexts: FakeContext[] = []
   const sources: FakeSource[] = []
   const engine = new AudioEngine({
@@ -121,11 +126,13 @@ function setup(opts: { worklet?: boolean; failFirstLoad?: boolean } = {}) {
           return s as unknown as AudioNode
         },
     seed: () => 99,
+    now: opts.now,
   })
   const ctx = () => contexts[0]
   const master = () => ctx().gains[0]
+  const fade = () => ctx().gains[1]
   const gainOf = (source: FakeSource) => source.connections[0] as FakeGain
-  return { engine, contexts, sources, ctx, master, gainOf }
+  return { engine, contexts, sources, ctx, master, fade, gainOf }
 }
 
 beforeEach(() => vi.useFakeTimers())
@@ -176,11 +183,13 @@ describe('AudioEngine', () => {
     expect(ctx().state).toBe('running')
   })
 
-  it('wires master volume to the speakers', async () => {
-    const { engine, ctx, master } = setup()
+  it('wires master volume through the timer fade to the speakers', async () => {
+    const { engine, ctx, master, fade } = setup()
     await engine.unlock()
-    expect(master().connections).toEqual([ctx().destination])
+    expect(master().connections).toEqual([fade()])
+    expect(fade().connections).toEqual([ctx().destination])
     expect(master().gain.value).toBe(1)
+    expect(fade().gain.value).toBe(1)
   })
 
   it('loads the worklet module once', async () => {
@@ -387,5 +396,72 @@ describe('AudioEngine binaural beats', () => {
     await engine.play('rain')
     engine.setBeat(12)
     expect(sources[0].messages).toEqual([])
+  })
+})
+
+describe('AudioEngine sleep-timer fade', () => {
+  const T0 = 1_000_000
+  // Audio clock is at 10 s in the fake context.
+
+  it('glides to full, then lays the fade curve to end exactly on time', async () => {
+    const { engine, fade } = setup({ now: () => T0 })
+    await engine.unlock()
+    engine.setFadeOut({ startsAt: T0 + 60_000, endsAt: T0 + 120_000 })
+    const calls = fade().gain.calls
+    expect(calls[0]).toEqual(['hold', 10])
+    expect(calls[1]).toEqual(['ramp', 1, 10 + FADE_RESET_SECONDS])
+    const [kind, points, start, duration, first, last] = calls[2]
+    expect(kind).toBe('curve')
+    expect(start).toBeCloseTo(70, 6)
+    expect(start + (duration as number)).toBeCloseTo(130, 6)
+    expect(points).toBe(600)
+    expect(first).toBe(1)
+    expect(last).toBe(0)
+  })
+
+  it('joins a fade already under way at the right point', async () => {
+    const { engine, fade } = setup({ now: () => T0 + 30_000 })
+    await engine.unlock()
+    engine.setFadeOut({ startsAt: T0, endsAt: T0 + 60_000 })
+    const [, rampTo] = fade().gain.calls[1]
+    expect(rampTo).toBeCloseTo(fadeGainAt(31 / 60), 6)
+    const [, , start, duration, first] = fade().gain.calls[2]
+    expect(start).toBeCloseTo(11.01, 6)
+    expect((start as number) + (duration as number)).toBeCloseTo(40, 6)
+    expect(first).toBeCloseTo(fadeGainAt(31.01 / 60), 4)
+  })
+
+  it('goes quiet within a second if the end has already passed', async () => {
+    const { engine, fade } = setup({ now: () => T0 + 5000 })
+    await engine.unlock()
+    engine.setFadeOut({ startsAt: T0 - 60_000, endsAt: T0 })
+    expect(fade().gain.calls.at(-1)).toEqual(['ramp', 0, 10 + FADE_RESET_SECONDS])
+  })
+
+  it('applies a fade set before audio was unlocked', async () => {
+    const { engine, fade } = setup({ now: () => T0 })
+    engine.setFadeOut({ startsAt: T0 + 60_000, endsAt: T0 + 120_000 })
+    expect(engine.getFadeOut()).not.toBeNull()
+    await engine.unlock()
+    expect(fade().gain.calls.some((c) => c[0] === 'curve')).toBe(true)
+  })
+
+  it('brings the sound back up smoothly when cancelled', async () => {
+    const { engine, fade } = setup({ now: () => T0 })
+    await engine.unlock()
+    engine.setFadeOut({ startsAt: T0, endsAt: T0 + 60_000 })
+    engine.setFadeOut(null)
+    expect(fade().gain.target).toEqual(['ramp', 1, 10 + FADE_RESET_SECONDS])
+    expect(engine.getFadeOut()).toBeNull()
+  })
+
+  it('leaves master volume to the user during a fade', async () => {
+    const { engine, master, fade } = setup({ now: () => T0 })
+    await engine.unlock()
+    engine.setFadeOut({ startsAt: T0, endsAt: T0 + 60_000 })
+    const fadeCalls = fade().gain.calls.length
+    engine.setMasterVolume(0.5)
+    expect(master().gain.target?.[1]).toBeCloseTo(0.25)
+    expect(fade().gain.calls).toHaveLength(fadeCalls)
   })
 })

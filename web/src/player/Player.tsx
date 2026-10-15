@@ -2,6 +2,7 @@ import { type CSSProperties, useEffect, useId, useState } from 'react'
 import { PageHeader } from '@freeappstore/sdk/ui'
 import { MAX_BEAT_HZ, MIN_BEAT_HZ, formatBeat } from '../audio'
 import { HeadphonesIcon, PauseIcon, PlayIcon, SoundIcon, StopIcon, VolumeIcon } from './icons'
+import { SleepTimerButton } from './SleepTimer'
 import { SOUNDS, soundName, type SoundInfo } from './sounds'
 import { isPlaying, statusText, type PlayerAction, type PlayerState } from './state'
 import { dispatch, usePlayerState } from './store'
@@ -109,9 +110,12 @@ function PlayerBar({ state, act }: Props) {
   const master = state.muted ? 0 : state.master
   return (
     <section className="ss-bar" aria-label="Player">
-      <p className="ss-status" role="status" aria-live="polite">
-        {statusText(state)}
-      </p>
+      <div className="ss-bar-top">
+        <p className="ss-status" role="status" aria-live="polite">
+          {statusText(state)}
+        </p>
+        <SleepTimerButton />
+      </div>
       <div className="ss-bar-buttons">
         <button
           type="button"

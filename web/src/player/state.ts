@@ -26,6 +26,8 @@ export interface PlayerState {
 export type PlayerAction =
   | { type: 'toggle'; kind: SoundKind }
   | { type: 'playPause' }
+  /** Pause if playing (the sleep timer uses this; it never resumes). */
+  | { type: 'pause' }
   | { type: 'stop' }
   | { type: 'volume'; kind: SoundKind; value: number }
   | { type: 'master'; value: number }
@@ -64,6 +66,8 @@ export function reduce(state: PlayerState, action: PlayerAction): PlayerState {
     case 'playPause':
       if (state.active.length === 0) return { ...state, active: [DEFAULT_SOUND], paused: false }
       return { ...state, paused: !state.paused }
+    case 'pause':
+      return state.paused ? state : { ...state, paused: true }
     case 'stop':
       return { ...state, active: [], paused: true }
     case 'volume':

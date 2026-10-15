@@ -3,10 +3,15 @@
 // never a jump, so starting, stopping and adjusting sounds can't click.
 //
 //   generator node ─▶ sound gain ─┐
-//   generator node ─▶ sound gain ─┼─▶ master gain ─▶ speakers
+//   generator node ─▶ sound gain ─┼─▶ master gain ─▶ fade gain ─▶ speakers
 //   ...                           ┘
+//
+// The fade gain belongs to the sleep timer. Its fade-out is scheduled on the
+// audio clock in advance, so it happens on time even if the page's timers
+// are throttled while the screen is locked.
 
 import { DEFAULT_BEAT_HZ, clampBeat } from './binaural'
+import { fadeCurve, fadeGainAt } from './fade'
 import { PROCESSOR_NAME, type SoundKind, type SourceMessage } from './generators'
 
 /** Fade used when a sound starts or stops. */
@@ -14,6 +19,14 @@ export const FADE_SECONDS = 1.5
 /** Ramp used for volume changes, short enough to feel immediate. */
 export const VOLUME_RAMP_SECONDS = 0.08
 export const DEFAULT_VOLUME = 0.7
+/** How fast the sound comes back when a sleep-timer fade is cancelled. */
+export const FADE_RESET_SECONDS = 1
+
+/** A sleep-timer fade: silent by `endsAt`, starting at `startsAt` (ms since epoch). */
+export interface FadePlan {
+  startsAt: number
+  endsAt: number
+}
 
 /**
  * Map a slider position (0–1) to a gain. Loudness is roughly logarithmic, so
@@ -62,6 +75,8 @@ export interface EngineOptions {
   createSource?: (ctx: AudioContext, options: AudioWorkletNodeOptions) => Source
   /** Defaults to a random seed, so every session sounds a little different. */
   seed?: () => number
+  /** Wall clock, ms since epoch. Defaults to Date.now; tests pass a fake. */
+  now?: () => number
 }
 
 interface Voice {
@@ -75,6 +90,8 @@ export class AudioEngine {
   private readonly options: EngineOptions
   private ctx: AudioContext | null = null
   private master: GainNode | null = null
+  private fade: GainNode | null = null
+  private fadePlan: FadePlan | null = null
   private ready: Promise<void> | null = null
   private masterVolume = 1
   private beatHz = DEFAULT_BEAT_HZ
@@ -97,9 +114,14 @@ export class AudioEngine {
         : new AudioContext({ latencyHint: 'playback' })
       const master = ctx.createGain()
       master.gain.value = volumeToGain(this.masterVolume)
-      master.connect(ctx.destination)
+      const fade = ctx.createGain()
+      fade.gain.value = 1
+      master.connect(fade)
+      fade.connect(ctx.destination)
+      this.fade = fade
       this.ctx = ctx
       this.master = master
+      if (this.fadePlan) this.applyFade()
     }
     const ctx = this.ctx
     // Resume first: it has to happen inside the gesture's call stack.
@@ -228,5 +250,67 @@ export class AudioEngine {
 
   private post(voice: Voice, message: SourceMessage): void {
     voice.source.port?.postMessage(message)
+  }
+
+  /**
+   * Schedule the sleep timer's fade-out, or cancel it (null), bringing the
+   * sound back up over a second. Can be set before audio is unlocked; it is
+   * applied once the AudioContext exists.
+   */
+  setFadeOut(plan: FadePlan | null): void {
+    this.fadePlan = plan
+    this.applyFade()
+  }
+
+  getFadeOut(): FadePlan | null {
+    return this.fadePlan
+  }
+
+  private applyFade(): void {
+    const ctx = this.ctx
+    const param = this.fade?.gain
+    if (!ctx || !param) return
+    const t = ctx.currentTime
+    const plan = this.fadePlan
+    if (!plan) {
+      rampParam(param, 1, t, FADE_RESET_SECONDS)
+      return
+    }
+    // Hold wherever the gain is now, then lay the curve from there.
+    if (typeof param.cancelAndHoldAtTime === 'function') {
+      param.cancelAndHoldAtTime(t)
+    } else {
+      const current = param.value
+      param.cancelScheduledValues(t)
+      param.setValueAtTime(current, t)
+    }
+    const now = (this.options.now ?? Date.now)()
+    if (now >= plan.endsAt) {
+      param.linearRampToValueAtTime(0, t + FADE_RESET_SECONDS)
+      return
+    }
+    // First glide (over a second) to where the curve says the gain should be.
+    // That matters when a fade in progress is pushed back by adding time: the
+    // sound comes back up rather than staying quiet until the new fade.
+    const settle = FADE_RESET_SECONDS * 1000
+    if (now + settle >= plan.endsAt) {
+      param.linearRampToValueAtTime(0, t + (plan.endsAt - now) / 1000)
+      return
+    }
+    const length = Math.max(1, plan.endsAt - plan.startsAt)
+    const progressAt = (ms: number) => Math.min(1, Math.max(0, (ms - plan.startsAt) / length))
+    param.linearRampToValueAtTime(fadeGainAt(progressAt(now + settle)), t + FADE_RESET_SECONDS)
+    // Then the curve, from the later of "after the glide" and the fade start.
+    const curveAt = Math.max(now + settle + 10, plan.startsAt)
+    const start = t + (curveAt - now) / 1000
+    const seconds = (plan.endsAt - curveAt) / 1000
+    if (seconds <= 0.05) {
+      param.linearRampToValueAtTime(0, t + (plan.endsAt - now) / 1000)
+      return
+    }
+    // Ten points a second is smooth (the browser interpolates between them).
+    const points = Math.min(2000, Math.max(2, Math.ceil(seconds * 10)))
+    const from = progressAt(curveAt)
+    param.setValueCurveAtTime(fadeCurve(points, from), start, seconds)
   }
 }

@@ -65,7 +65,7 @@ function Screen({ path, navigate }: { path: string; navigate: (href: string) => 
         pink and brown noise, and binaural beats. Tap sounds to mix them and set each one's volume.
         Save favourite mixes by name on the Mixes screen; sign in to have
         them on all your devices. Every sound is generated on your device, so there are no audio files to download and it works
-        offline. A sleep timer is on the way.
+        offline. The sleep timer (the moon button) fades everything out gently over the last minute.
       </p>
       <p className="mt-4 text-[var(--muted)]">
         Binaural beats are offered as something to listen to, nothing more. Sleep Sounds makes no

@@ -140,3 +140,11 @@ export function TrashIcon({ size = 18 }: { size?: number }) {
     </Icon>
   )
 }
+
+export function MoonIcon({ size = 18 }: { size?: number }) {
+  return (
+    <Icon size={size}>
+      <path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z" />
+    </Icon>
+  )
+}
