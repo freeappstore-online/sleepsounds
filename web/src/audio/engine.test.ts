@@ -1,5 +1,14 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { AudioEngine, DEFAULT_VOLUME, FADE_SECONDS, VOLUME_RAMP_SECONDS, rampParam, volumeToGain } from './engine'
+import { DEFAULT_BEAT_HZ, MAX_BEAT_HZ, MIN_BEAT_HZ } from './binaural'
+import {
+  AudioEngine,
+  DEFAULT_VOLUME,
+  FADE_SECONDS,
+  VOLUME_RAMP_SECONDS,
+  rampParam,
+  sourceOptions,
+  volumeToGain,
+} from './engine'
 
 // A stand-in for the parts of Web Audio the engine touches. Each AudioParam
 // records its automation calls so tests can check every change is a ramp.
@@ -49,6 +58,7 @@ class FakeGain extends FakeNode {
 
 class FakeSource extends FakeNode {
   messages: unknown[] = []
+  options: AudioWorkletNodeOptions = {}
   port = { postMessage: (m: unknown) => this.messages.push(m) }
   readonly kind: string
   readonly seed: number
@@ -103,8 +113,10 @@ function setup(opts: { worklet?: boolean; failFirstLoad?: boolean } = {}) {
     // Without createSource the engine loads the worklet module itself.
     createSource: opts.worklet
       ? undefined
-      : (_ctx, kind, seed) => {
+      : (_ctx, options) => {
+          const { kind, seed } = options.processorOptions as { kind: string; seed: number }
           const s = new FakeSource(kind, seed)
+          s.options = options
           sources.push(s)
           return s as unknown as AudioNode
         },
@@ -312,5 +324,68 @@ describe('AudioEngine', () => {
     expect(master().gain.target?.[0]).toBe('ramp')
     expect(master().gain.target?.[1]).toBeCloseTo(0.64)
     expect(master().gain.target?.[2]).toBe(40 + VOLUME_RAMP_SECONDS)
+  })
+})
+
+describe('sourceOptions', () => {
+  it('builds mono nodes for noise and textures', () => {
+    expect(sourceOptions('rain', 5, 6)).toEqual({
+      numberOfInputs: 0,
+      numberOfOutputs: 1,
+      outputChannelCount: [1],
+      processorOptions: { kind: 'rain', seed: 5 },
+    })
+  })
+
+  it('builds a stereo node for binaural beats, carrying the beat', () => {
+    expect(sourceOptions('binaural', 5, 8)).toEqual({
+      numberOfInputs: 0,
+      numberOfOutputs: 1,
+      outputChannelCount: [2],
+      processorOptions: { kind: 'binaural', seed: 5, beatHz: 8 },
+    })
+  })
+})
+
+describe('AudioEngine binaural beats', () => {
+  it('starts at the default beat, in stereo, with the usual fade-in', async () => {
+    const { engine, sources, gainOf } = setup()
+    expect(engine.getBeat()).toBe(DEFAULT_BEAT_HZ)
+    await engine.play('binaural')
+    expect(sources[0].options.outputChannelCount).toEqual([2])
+    expect(sources[0].options.processorOptions).toMatchObject({ beatHz: DEFAULT_BEAT_HZ })
+    expect(gainOf(sources[0]).gain.target).toEqual(['ramp', volumeToGain(DEFAULT_VOLUME), 10 + FADE_SECONDS])
+  })
+
+  it('uses a beat chosen before playing', async () => {
+    const { engine, sources } = setup()
+    engine.setBeat(10)
+    await engine.play('binaural')
+    expect(sources[0].options.processorOptions).toMatchObject({ beatHz: 10 })
+    expect(sources[0].messages).toEqual([])
+  })
+
+  it('sends beat changes to the playing tones', async () => {
+    const { engine, sources } = setup()
+    await engine.play('binaural')
+    engine.setBeat(4.5)
+    expect(sources[0].messages).toEqual([{ type: 'beat', hz: 4.5 }])
+  })
+
+  it('clamps the beat to its range', () => {
+    const { engine } = setup()
+    engine.setBeat(500)
+    expect(engine.getBeat()).toBe(MAX_BEAT_HZ)
+    engine.setBeat(0)
+    expect(engine.getBeat()).toBe(MIN_BEAT_HZ)
+    engine.setBeat(Number.NaN)
+    expect(engine.getBeat()).toBe(DEFAULT_BEAT_HZ)
+  })
+
+  it('does not message other sounds about the beat', async () => {
+    const { engine, sources } = setup()
+    await engine.play('rain')
+    engine.setBeat(12)
+    expect(sources[0].messages).toEqual([])
   })
 })

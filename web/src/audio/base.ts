@@ -5,8 +5,13 @@
 import { Rng, softLimit } from './dsp'
 
 export interface Generator {
-  /** Fill `out` with the next out.length samples (mono, roughly ±1). */
-  process(out: Float32Array): void
+  /** 1 for mono sounds (the default), 2 for stereo ones such as binaural beats. */
+  readonly channels?: 1 | 2
+  /**
+   * Fill `out` with the next out.length samples (roughly ±1). Stereo
+   * generators write the right channel into `right` when given one.
+   */
+  process(out: Float32Array, right?: Float32Array): void
 }
 
 // Filters and modulators are retuned once per chunk rather than per sample.

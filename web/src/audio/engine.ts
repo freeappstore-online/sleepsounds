@@ -6,7 +6,8 @@
 //   generator node ─▶ sound gain ─┼─▶ master gain ─▶ speakers
 //   ...                           ┘
 
-import { PROCESSOR_NAME, type SoundKind } from './generators'
+import { DEFAULT_BEAT_HZ, clampBeat } from './binaural'
+import { PROCESSOR_NAME, type SoundKind, type SourceMessage } from './generators'
 
 /** Fade used when a sound starts or stops. */
 export const FADE_SECONDS = 1.5
@@ -39,19 +40,32 @@ export function rampParam(param: AudioParam, target: number, now: number, second
   param.linearRampToValueAtTime(target, now + seconds)
 }
 
+/** How to build the worklet node for a sound. Binaural beats need two channels. */
+export function sourceOptions(kind: SoundKind, seed: number, beatHz: number): AudioWorkletNodeOptions {
+  const stereo = kind === 'binaural'
+  return {
+    numberOfInputs: 0,
+    numberOfOutputs: 1,
+    outputChannelCount: [stereo ? 2 : 1],
+    processorOptions: stereo ? { kind, seed, beatHz } : { kind, seed },
+  }
+}
+
+type Source = AudioNode & { port?: Pick<MessagePort, 'postMessage'> }
+
 export interface EngineOptions {
   /** URL of the bundled worklet module (see audio/index.ts). */
   workletUrl: string | URL
   /** Defaults to a new AudioContext; tests pass a fake. */
   createContext?: () => AudioContext
   /** Defaults to an AudioWorkletNode running the generator. */
-  createSource?: (ctx: AudioContext, kind: SoundKind, seed: number) => AudioNode & { port?: MessagePort }
+  createSource?: (ctx: AudioContext, options: AudioWorkletNodeOptions) => Source
   /** Defaults to a random seed, so every session sounds a little different. */
   seed?: () => number
 }
 
 interface Voice {
-  source: AudioNode & { port?: MessagePort }
+  source: Source
   gain: GainNode
   volume: number
   stopTimer: ReturnType<typeof setTimeout> | null
@@ -63,6 +77,7 @@ export class AudioEngine {
   private master: GainNode | null = null
   private ready: Promise<void> | null = null
   private masterVolume = 1
+  private beatHz = DEFAULT_BEAT_HZ
   private readonly voices = new Map<SoundKind, Voice>()
   private readonly volumes = new Map<SoundKind, number>()
 
@@ -138,14 +153,10 @@ export class AudioEngine {
       return
     }
     const seed = this.options.seed ? this.options.seed() : Math.floor(Math.random() * 2 ** 32)
+    const options = sourceOptions(kind, seed, this.beatHz)
     const source = this.options.createSource
-      ? this.options.createSource(ctx, kind, seed)
-      : new AudioWorkletNode(ctx, PROCESSOR_NAME, {
-          numberOfInputs: 0,
-          numberOfOutputs: 1,
-          outputChannelCount: [1],
-          processorOptions: { kind, seed },
-        })
+      ? this.options.createSource(ctx, options)
+      : new AudioWorkletNode(ctx, PROCESSOR_NAME, options)
     const gain = ctx.createGain()
     gain.gain.value = 0
     source.connect(gain)
@@ -161,7 +172,7 @@ export class AudioEngine {
     rampParam(voice.gain.gain, 0, this.ctx.currentTime, FADE_SECONDS)
     voice.stopTimer = setTimeout(
       () => {
-        voice.source.port?.postMessage('stop')
+        this.post(voice, 'stop')
         voice.source.disconnect()
         voice.gain.disconnect()
         if (this.voices.get(kind) === voice) this.voices.delete(kind)
@@ -199,5 +210,23 @@ export class AudioEngine {
     if (this.master && this.ctx) {
       rampParam(this.master.gain, volumeToGain(this.masterVolume), this.ctx.currentTime, VOLUME_RAMP_SECONDS)
     }
+  }
+
+  getBeat(): number {
+    return this.beatHz
+  }
+
+  /**
+   * Set the binaural beat frequency (clamped to 1–30 Hz). Remembered while
+   * stopped; while playing, the tones glide to it without a click.
+   */
+  setBeat(hz: number): void {
+    this.beatHz = clampBeat(hz)
+    const voice = this.voices.get('binaural')
+    if (voice) this.post(voice, { type: 'beat', hz: this.beatHz })
+  }
+
+  private post(voice: Voice, message: SourceMessage): void {
+    voice.source.port?.postMessage(message)
   }
 }

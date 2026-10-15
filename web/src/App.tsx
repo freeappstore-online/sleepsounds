@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { initApp } from '@freeappstore/sdk'
 import { BuildInfo, type NavItem, PageHeader, Shell } from '@freeappstore/sdk/ui'
+import { BinauralPanel } from './BinauralPanel'
 
 const fas = initApp({ appId: 'sleepsounds' })
 
@@ -61,6 +62,11 @@ function Screen({ path }: { path: string }) {
             works offline.
           </p>
           <p className="mt-4 text-[var(--muted)]">
+            Binaural beats are offered as something to listen to, nothing more. Sleep Sounds makes
+            no health or medical claims about them or any other sound. They need headphones; keep the
+            volume low.
+          </p>
+          <p className="mt-4 text-[var(--muted)]">
             Sleep Sounds is a free, MIT-licensed app on{' '}
             <a href="https://freeappstore.online" className="underline">
               FreeAppStore
@@ -73,7 +79,11 @@ function Screen({ path }: { path: string }) {
       return (
         <>
           <PageHeader title="Sounds" description="White noise, rain, ocean and more, with a sleep timer." />
-          <ComingSoon />
+          <BinauralPanel />
+          <p className="mt-4 rounded-[var(--radius)] border border-[var(--line)] bg-[var(--panel)] p-4 text-[var(--muted)]">
+            More sounds are coming soon: noise, rain, ocean waves, wind, a fan, a fireplace and a
+            stream.
+          </p>
         </>
       )
   }

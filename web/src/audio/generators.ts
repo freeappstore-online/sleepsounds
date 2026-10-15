@@ -3,6 +3,7 @@
 // ever repeats.
 
 import { GeneratorBase, type Generator } from './base'
+import { Binaural } from './binaural'
 import { OnePoleHP } from './dsp'
 import { BrownNoise, PinkNoise, WhiteNoise } from './noise'
 import { Fan, Fire, Rain, Stream, Waves, Wind } from './textures'
@@ -11,7 +12,8 @@ export type { Generator } from './base'
 
 export const NOISE_KINDS = ['white', 'pink', 'brown'] as const
 export const TEXTURE_KINDS = ['rain', 'waves', 'wind', 'fan', 'fire', 'stream'] as const
-export const SOUND_KINDS = [...NOISE_KINDS, ...TEXTURE_KINDS] as const
+export const TONE_KINDS = ['binaural'] as const
+export const SOUND_KINDS = [...NOISE_KINDS, ...TEXTURE_KINDS, ...TONE_KINDS] as const
 
 export type SoundKind = (typeof SOUND_KINDS)[number]
 
@@ -48,7 +50,7 @@ class Brown extends GeneratorBase {
   }
 }
 
-const FACTORIES: Record<SoundKind, new (sampleRate: number, seed: number) => Generator> = {
+const FACTORIES: Record<Exclude<SoundKind, 'binaural'>, new (sampleRate: number, seed: number) => Generator> = {
   white: White,
   pink: Pink,
   brown: Brown,
@@ -60,6 +62,21 @@ const FACTORIES: Record<SoundKind, new (sampleRate: number, seed: number) => Gen
   stream: Stream,
 }
 
-export function createGenerator(kind: SoundKind, sampleRate: number, seed: number): Generator {
+export interface GeneratorOptions {
+  /** Binaural beats only: the starting beat frequency in Hz. */
+  beatHz?: number
+}
+
+export function createGenerator(
+  kind: SoundKind,
+  sampleRate: number,
+  seed: number,
+  options: GeneratorOptions = {},
+): Generator {
+  // The beat tones are pure sines, so they need no seed.
+  if (kind === 'binaural') return new Binaural(sampleRate, options.beatHz)
   return new FACTORIES[kind](sampleRate, seed)
 }
+
+/** Messages the engine posts to a running sound's worklet node. */
+export type SourceMessage = 'stop' | { type: 'beat'; hz: number }

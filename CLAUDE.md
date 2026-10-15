@@ -1,7 +1,7 @@
 # sleepsounds
 
 Sleep Sounds: a white-noise and sleep-sound generator on FreeAppStore, every sound generated
-with Web Audio. Currently a "Coming soon" shell (Sounds, Mixes, About); see
+with Web Audio. In development (Sounds, Mixes, About; only binaural beats are wired into the UI so far); see
 freeappstore-online/platform#162.
 
 - Live: https://sleepsounds.freeappstore.online
