@@ -13,6 +13,7 @@ yet. Progress is tracked in
 pnpm install
 pnpm dev      # local dev server
 pnpm build    # production build in web/dist
+pnpm test     # unit tests (audio engine)
 fas check     # FreeAppStore compliance checks
 ```
 

@@ -20,6 +20,6 @@
     "build": "pnpm --filter @sleepsounds/web build",
     "preview": "pnpm --filter @sleepsounds/web preview",
     "typecheck": "pnpm --filter @sleepsounds/web exec tsc -b",
-    "test": "pnpm --filter @sleepsounds/web exec tsc -b"
+    "test": "pnpm --filter @sleepsounds/web test"
   }
 }
