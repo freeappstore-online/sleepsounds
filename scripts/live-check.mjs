@@ -100,7 +100,6 @@ const envelope = (page, windowSec) =>
     return out
   }, windowSec)
 
-/** Index (seconds) of the first sample louder than `level`. */
 /** Time (seconds) of the last sample louder than `level`. */
 const lastAbove = (page, level) =>
   page.evaluate((lv) => {
@@ -123,6 +122,7 @@ const riseTime = (page, from, rms) =>
     return null
   }, [from, rms])
 
+/** Time (seconds) of the first sample louder than `level`. */
 const firstAbove = (page, level) =>
   page.evaluate((lv) => {
     const x = window.__rec.last
@@ -132,7 +132,9 @@ const firstAbove = (page, level) =>
 
 const report = { url: URL_BASE, at: new Date().toISOString(), themes: {}, failures: [] }
 const check = (theme, name, ok, detail) => {
-  report.themes[theme].checks.push({ name, ok, ...detail })
+  // The label and verdict go last so a detail field (a sound's own `name`)
+  // can't overwrite them.
+  report.themes[theme].checks.push({ ...detail, name, ok })
   if (!ok) report.failures.push(`${theme}: ${name}`)
 }
 
