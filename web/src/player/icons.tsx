@@ -122,3 +122,21 @@ export function VolumeIcon({ size = 20, muted = false }: { size?: number; muted?
 export function HeadphonesIcon({ size = 20 }: { size?: number }) {
   return <Icon size={size}>{SOUND_PATHS.binaural}</Icon>
 }
+
+export function PencilIcon({ size = 18 }: { size?: number }) {
+  return (
+    <Icon size={size}>
+      <path d="M4 20h4L19 9a2.8 2.8 0 0 0-4-4L4 16z" />
+      <path d="M13.5 6.5l4 4" />
+    </Icon>
+  )
+}
+
+export function TrashIcon({ size = 18 }: { size?: number }) {
+  return (
+    <Icon size={size}>
+      <path d="M4 7h16M10 11v6M14 11v6" />
+      <path d="M6 7l1 12a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2l1-12M9 7V4h6v3" />
+    </Icon>
+  )
+}

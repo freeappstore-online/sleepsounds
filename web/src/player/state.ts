@@ -31,6 +31,8 @@ export type PlayerAction =
   | { type: 'master'; value: number }
   | { type: 'mute' }
   | { type: 'beat'; hz: number }
+  /** Load a saved mix: exactly these sounds at these volumes, playing. */
+  | { type: 'load'; sounds: readonly { kind: SoundKind; volume: number }[]; beat?: number }
 
 /** What the big button plays when the mix is empty. */
 export const DEFAULT_SOUND: SoundKind = 'rain'
@@ -73,6 +75,19 @@ export function reduce(state: PlayerState, action: PlayerAction): PlayerState {
       return { ...state, muted: !state.muted }
     case 'beat':
       return { ...state, beat: clampBeat(action.hz) }
+    case 'load': {
+      const volumes = { ...state.volumes }
+      for (const s of action.sounds) volumes[s.kind] = unit(s.volume)
+      const active = [...new Set(action.sounds.map((s) => s.kind))]
+      return {
+        ...state,
+        active,
+        volumes,
+        beat: action.beat === undefined ? state.beat : clampBeat(action.beat),
+        paused: active.length === 0,
+        muted: false,
+      }
+    }
   }
 }
 

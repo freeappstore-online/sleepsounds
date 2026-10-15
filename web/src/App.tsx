@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react'
-import { initApp } from '@freeappstore/sdk'
+import { fas } from './fas'
 import { BuildInfo, type NavItem, PageHeader, Shell } from '@freeappstore/sdk/ui'
+import { Mixes } from './player/Mixes'
 import { Player } from './player/Player'
 
-const fas = initApp({ appId: 'sleepsounds' })
 
 // The app's screens. Shell renders them as its navbar (<nav aria-label="Main">,
 // current screen highlighted, a menu on phones). `title` becomes the browser
@@ -31,13 +31,18 @@ export default function App() {
     setPath(href)
   }
 
+  const goTo = (href: string) => {
+    window.history.pushState(null, '', href)
+    window.dispatchEvent(new PopStateEvent('popstate'))
+  }
+
   return (
     <Shell app={fas} appName="Sleep Sounds" nav={NAV} onNavigate={navigate}>
       {path === '/mixes' || path === '/about' ? (
         // Text screens scroll inside the app frame; the page itself never does.
         <div className="ss-page">
           <div className="mx-auto w-full max-w-3xl p-4 sm:p-8">
-            <Screen path={path} />
+            <Screen path={path} navigate={goTo} />
           </div>
           <BuildInfo />
         </div>
@@ -48,24 +53,18 @@ export default function App() {
   )
 }
 
-function Screen({ path }: { path: string }) {
-  if (path === '/mixes') {
-    return (
-      <>
-        <PageHeader title="Mixes" description="Save the sounds you like together and come back to them." />
-        <p className="ss-card text-[var(--muted)]">
-          Coming soon. For now, Sleep Sounds remembers your current mix and levels between visits.
-        </p>
-      </>
-    )
-  }
+function Screen({ path, navigate }: { path: string; navigate: (href: string) => void }) {
+  // Links inside a screen go through history + popstate so the Shell's nav
+  // highlight follows along, just like the back button.
+  if (path === '/mixes') return <Mixes onOpenSounds={() => navigate('/')} />
   return (
     <>
       <PageHeader title="About" />
       <p className="mt-4 text-[var(--muted)]">
         Sleep Sounds is a noise machine: rain, ocean waves, a stream, wind, a fireplace, a fan, white,
         pink and brown noise, and binaural beats. Tap sounds to mix them and set each one's volume.
-        Every sound is generated on your device, so there are no audio files to download and it works
+        Save favourite mixes by name on the Mixes screen; sign in to have
+        them on all your devices. Every sound is generated on your device, so there are no audio files to download and it works
         offline. A sleep timer is on the way.
       </p>
       <p className="mt-4 text-[var(--muted)]">
