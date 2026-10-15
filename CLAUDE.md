@@ -11,6 +11,7 @@ freeappstore-online/platform#162.
 - E2E: `pnpm e2e` (builds, then Playwright in `e2e/`: play, mix, presets, timer, background, offline, a11y)
 - Check: `fas check`; layout: `pnpm build && fas screencheck --skip-build` (the screen must never scroll; screens scroll inside the app frame)
 - Deploy: `git push origin main` (auto-deploys to R2 via GitHub Actions)
+- Live check: `pnpm live-check` (real host, phone width, light + dark: PWA, every sound with recorded output and click check, preset, timer fade, lock-screen, offline)
 
 ## Notes
 
