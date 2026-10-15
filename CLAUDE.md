@@ -1,14 +1,14 @@
 # sleepsounds
 
 Sleep Sounds: a white-noise and sleep-sound generator on FreeAppStore, every sound generated
-with Web Audio. In development (Sounds, Mixes, About; only binaural beats are wired into the UI so far); see
+with Web Audio. Sounds (the player: sound grid, per-sound volume, play/pause), Mixes (coming soon), About; see
 freeappstore-online/platform#162.
 
 - Live: https://sleepsounds.freeappstore.online
 - Dev: `pnpm install && pnpm dev`
 - Build: `pnpm build`
-- Test: `pnpm test` (vitest; audio engine unit tests)
-- Check: `fas check`
+- Test: `pnpm test` (vitest; audio engine and player state)
+- Check: `fas check`; layout: `pnpm build && fas screencheck --skip-build` (the screen must never scroll; screens scroll inside the app frame)
 - Deploy: `git push origin main` (auto-deploys to R2 via GitHub Actions)
 
 ## Notes

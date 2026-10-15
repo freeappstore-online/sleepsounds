@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { initApp } from '@freeappstore/sdk'
 import { BuildInfo, type NavItem, PageHeader, Shell } from '@freeappstore/sdk/ui'
-import { BinauralPanel } from './BinauralPanel'
+import { Player } from './player/Player'
 
 const fas = initApp({ appId: 'sleepsounds' })
 
@@ -33,68 +33,53 @@ export default function App() {
 
   return (
     <Shell app={fas} appName="Sleep Sounds" nav={NAV} onNavigate={navigate}>
-      <div className="mx-auto w-full max-w-3xl p-4 sm:p-8">
-        <Screen path={path} />
-      </div>
-      <BuildInfo />
+      {path === '/mixes' || path === '/about' ? (
+        // Text screens scroll inside the app frame; the page itself never does.
+        <div className="ss-page">
+          <div className="mx-auto w-full max-w-3xl p-4 sm:p-8">
+            <Screen path={path} />
+          </div>
+          <BuildInfo />
+        </div>
+      ) : (
+        <Player />
+      )}
     </Shell>
   )
 }
 
 function Screen({ path }: { path: string }) {
-  switch (path) {
-    case '/mixes':
-      return (
-        <>
-          <PageHeader title="Mixes" description="Save the sounds you like together and come back to them." />
-          <ComingSoon />
-        </>
-      )
-    case '/about':
-      return (
-        <>
-          <PageHeader title="About" />
-          <ComingSoon />
-          <p className="mt-4 text-[var(--muted)]">
-            Sleep Sounds will be a noise machine: white, pink and brown noise, rain, ocean waves,
-            wind, a fan, a fireplace and a stream, mixed however you like with a sleep timer. Every
-            sound will be generated on your device, so there are no audio files to download and it
-            works offline.
-          </p>
-          <p className="mt-4 text-[var(--muted)]">
-            Binaural beats are offered as something to listen to, nothing more. Sleep Sounds makes
-            no health or medical claims about them or any other sound. They need headphones; keep the
-            volume low.
-          </p>
-          <p className="mt-4 text-[var(--muted)]">
-            Sleep Sounds is a free, MIT-licensed app on{' '}
-            <a href="https://freeappstore.online" className="underline">
-              FreeAppStore
-            </a>
-            .
-          </p>
-        </>
-      )
-    default:
-      return (
-        <>
-          <PageHeader title="Sounds" description="White noise, rain, ocean and more, with a sleep timer." />
-          <BinauralPanel />
-          <p className="mt-4 rounded-[var(--radius)] border border-[var(--line)] bg-[var(--panel)] p-4 text-[var(--muted)]">
-            More sounds are coming soon: noise, rain, ocean waves, wind, a fan, a fireplace and a
-            stream.
-          </p>
-        </>
-      )
+  if (path === '/mixes') {
+    return (
+      <>
+        <PageHeader title="Mixes" description="Save the sounds you like together and come back to them." />
+        <p className="ss-card text-[var(--muted)]">
+          Coming soon. For now, Sleep Sounds remembers your current mix and levels between visits.
+        </p>
+      </>
+    )
   }
-}
-
-// Placeholder body until the screens are built. Nothing plays yet, so it says
-// so plainly.
-function ComingSoon() {
   return (
-    <p className="rounded-[var(--radius)] border border-[var(--line)] bg-[var(--panel)] p-4 text-[var(--muted)]">
-      Coming soon. Sleep Sounds is in development; it doesn't play any sounds yet.
-    </p>
+    <>
+      <PageHeader title="About" />
+      <p className="mt-4 text-[var(--muted)]">
+        Sleep Sounds is a noise machine: rain, ocean waves, a stream, wind, a fireplace, a fan, white,
+        pink and brown noise, and binaural beats. Tap sounds to mix them and set each one's volume.
+        Every sound is generated on your device, so there are no audio files to download and it works
+        offline. A sleep timer is on the way.
+      </p>
+      <p className="mt-4 text-[var(--muted)]">
+        Binaural beats are offered as something to listen to, nothing more. Sleep Sounds makes no
+        health or medical claims about them or any other sound. They need headphones; keep the volume
+        low.
+      </p>
+      <p className="mt-4 text-[var(--muted)]">
+        Sleep Sounds is a free, MIT-licensed app on{' '}
+        <a href="https://freeappstore.online" className="underline">
+          FreeAppStore
+        </a>
+        .
+      </p>
+    </>
   )
 }

@@ -12,15 +12,20 @@
     <script>
       // Set theme + loading background before first paint. Prevents flash.
       // Devs: change the colors below to match your app's brand.
-      // The user's choice from the Shell's theme toggle wins over the system.
+      // Sleep Sounds is dark by default (it's used in the dark). The first
+      // visit stores 'dark' as the theme so the Shell's toggle agrees; after
+      // that, the user's choice from the toggle wins.
       var t = null;
-      try { t = localStorage.getItem('stores-theme'); } catch (e) {}
+      try {
+        t = localStorage.getItem('stores-theme');
+        if (!t) { t = 'dark'; localStorage.setItem('stores-theme', t); }
+      } catch (e) { t = 'dark'; }
       var d = t === 'dark' || (t !== 'light' && matchMedia('(prefers-color-scheme: dark)').matches);
       if (d) document.documentElement.dataset.theme = 'dark';
       document.documentElement.style.background = d ? '#000000' : '#ffffff';
     </script>
     <title>Sleep Sounds — FreeAppStore</title>
-    <meta name="description" content="Coming soon — white noise and sleep sounds, generated on your device" />
+    <meta name="description" content="White noise, rain, ocean and more, generated on your device. Mix sounds and set each one's volume." />
     <!-- Platform analytics loader. CF Web Analytics is auto-provisioned at publish;
          GA4 / Plausible / custom <head> are opt-in via PUT /v1/apps/sleepsounds/analytics. -->
     <script src="https://api.freeappstore.online/v1/analytics.js?app=sleepsounds" defer></script>

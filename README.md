@@ -1,10 +1,10 @@
 # Sleep Sounds
 
-**Coming soon — white noise and sleep sounds, generated on your device.** A free app on
+**White noise and sleep sounds, generated on your device.** A free app on
 [FreeAppStore](https://freeappstore.online), live at https://sleepsounds.freeappstore.online.
 
-Right now it is in development: the planned screens (Sounds, Mixes, About) exist, and the Sounds
-screen plays binaural beats (headphones needed); the other sounds come next. Progress is tracked in
+Mix rain, ocean, stream, wind, fireplace, fan, white/pink/brown noise and binaural beats, each
+with its own volume. Saved mixes and a sleep timer are on the way. Progress is tracked in
 [freeappstore-online/platform#162](https://github.com/freeappstore-online/platform/issues/162).
 
 ## Develop
