@@ -1,4 +1,47 @@
 @import "tailwindcss";
+@source "../node_modules/@freeappstore/sdk/dist";
+
+@theme inline {
+  --color-popover: var(--popover);
+  --color-paper: var(--paper);
+  --color-paper-deep: var(--paper-deep);
+  --color-ink: var(--ink);
+  --color-ink-strong: var(--ink-strong);
+  --color-muted: var(--muted);
+  --color-line: var(--line);
+  --color-line-strong: var(--line-strong);
+  --color-panel: var(--panel);
+  --color-panel-strong: var(--panel-strong);
+  --color-panel-quiet: var(--panel-quiet);
+  --color-accent: var(--accent);
+  --color-accent-soft: var(--accent-soft);
+  --color-accent-deep: var(--accent-deep);
+  --color-success: var(--success);
+  --color-warning: var(--warning);
+  --color-danger: var(--danger);
+  --color-accent-hover: var(--accent-hover);
+  --color-sky: var(--sky);
+  --color-sky-soft: var(--sky-soft);
+  --color-sky-deep: var(--sky-deep);
+  --color-mint: var(--mint);
+  --color-mint-soft: var(--mint-soft);
+  --color-mint-deep: var(--mint-deep);
+  --radius-fas: var(--radius);
+  --radius-fas-sm: var(--radius-sm);
+  --shadow-fas: var(--shadow);
+  --color-bg-start: var(--bg-start);
+  --color-bg-mid: var(--bg-mid);
+  --color-bg-end: var(--bg-end);
+  --color-glow-warm: var(--glow-warm);
+  --color-glow-cool: var(--glow-cool);
+  --color-bg-blob-1: var(--bg-blob-1);
+  --color-bg-blob-2: var(--bg-blob-2);
+  --color-on-player-action: var(--on-player-action);
+  --color-danger-soft: var(--danger-soft);
+  --color-success-soft: var(--success-soft);
+  --color-warning-soft: var(--warning-soft);
+  --color-scrim: var(--scrim);
+}
 
 /* Brand fonts, self-hosted from @fontsource-variable so the app makes no
    third-party requests (latin + latin-ext subsets). */
@@ -47,9 +90,9 @@
   --muted: #666666;
   --line: rgba(0, 0, 0, 0.08);
   --line-strong: rgba(0, 0, 0, 0.14);
-  --panel: rgba(255, 255, 255, 0.72);
-  --panel-strong: rgba(255, 255, 255, 0.88);
-  --panel-quiet: rgba(255, 255, 255, 0.6);
+  --panel: rgb(255, 255, 255);
+  --panel-strong: rgb(255, 255, 255);
+  --panel-quiet: rgb(255, 255, 255);
   --accent: #d86f4d;
   --accent-soft: #ffd4bf;
   --accent-deep: #9f4427;
@@ -84,6 +127,12 @@
   --radius: 0.75rem;
   --radius-sm: 0.5rem;
   --shadow: var(--shadow-card);
+  --popover: var(--paper);
+  --on-player-action: #111;
+  --danger-soft: #fef2f2;
+  --success-soft: #f0fdf4;
+  --warning-soft: #fefce8;
+  --scrim: rgba(15, 23, 42, 0.5);
 }
 
 :root[data-theme='dark'] {
@@ -94,9 +143,9 @@
   --muted: #888888;
   --line: rgba(255, 255, 255, 0.08);
   --line-strong: rgba(255, 255, 255, 0.14);
-  --panel: rgba(18, 18, 18, 0.8);
-  --panel-strong: rgba(18, 18, 18, 0.92);
-  --panel-quiet: rgba(22, 22, 22, 0.8);
+  --panel: rgb(18, 18, 18);
+  --panel-strong: rgb(18, 18, 18);
+  --panel-quiet: rgb(22, 22, 22);
   --accent: #ff9b76;
   --accent-soft: #3b2119;
   --accent-deep: #ffd9cb;
@@ -123,6 +172,12 @@
   --bg-blob-2: rgba(137, 203, 229, 0.05);
   --shadow-soft: 0 28px 70px rgba(0, 0, 0, 0.6);
   --shadow-card: 0 12px 28px rgba(0, 0, 0, 0.4);
+  --popover: var(--paper);
+  --on-player-action: #111;
+  --danger-soft: #450a0a;
+  --success-soft: #052e16;
+  --warning-soft: #422006;
+  --scrim: rgba(0, 0, 0, 0.65);
 }
 
 html {
@@ -228,12 +283,47 @@ a:focus-visible {
 } /* end @layer base */
 
 /* Shell's text-size preference scales rem-based app typography. */
-:root[data-text='lg'] { font-size: 112.5%; }
-:root[data-text='sm'] { font-size: 87.5%; }
 
 /* ── Sleep Sounds player ─────────────────────────────────────────────────
    The app fills the screen exactly: the header stays put, each screen
    scrolls inside it, and the page itself never scrolls. */
+
+/* In the installed app the platform footer is pinned to the bottom. */
+
+/* Sound grid. Columns follow the space the grid actually has (it shares
+   the screen with the player in landscape), not the window width. */
+
+/* Sliders: a slim track with a filled part and a large, easy thumb. The
+   input itself is tall so it is easy to grab. */
+
+/* Player bar */
+
+/* While playing, a slow halo breathes around the button (about six breaths
+   a minute). Off for anyone who prefers reduced motion. */
+
+/* Cards (binaural settings, notes) */
+
+/* Short landscape screens (phones on their side): the player moves to a
+   column on the right, still under the thumb, and the heading is kept for
+   screen readers only to save height. */
+
+/* Narrow tiles (two columns on the smallest phones): a little tighter so
+   names like "Fireplace" fit on one line. */
+
+/* Mixes screen */
+
+/* Sleep timer */
+
+/* Background playback card */
+
+/* A native checkbox drawn as a switch: still a real checkbox to keyboards
+   and screen readers (role="switch"). */
+
+/* Dialogs (native <dialog>, see Dialog.tsx) */
+
+@layer components{
+:root[data-text='lg'] { font-size: 112.5%; }
+:root[data-text='sm'] { font-size: 87.5%; }
 
 div:has(> main.fas-main) {
   height: calc(100dvh - env(safe-area-inset-top) - env(safe-area-inset-bottom));
@@ -273,17 +363,12 @@ main.fas-main {
 .ss-player-main .fas-page-header {
   margin-bottom: 0.75rem;
 }
-
-/* In the installed app the platform footer is pinned to the bottom. */
 @media (display-mode: standalone) {
   .ss-player,
   .ss-page {
     padding-bottom: 2.25rem;
   }
 }
-
-/* Sound grid. Columns follow the space the grid actually has (it shares
-   the screen with the player in landscape), not the window width. */
 
 .ss-grid {
   display: grid;
@@ -292,16 +377,6 @@ main.fas-main {
   list-style: none;
   margin: 0;
   padding: 0;
-}
-
-@container (min-width: 30rem) {
-  .ss-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-}
-@container (min-width: 44rem) {
-  .ss-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 0.75rem; }
-}
-@container (min-width: 58rem) {
-  .ss-grid { grid-template-columns: repeat(5, minmax(0, 1fr)); }
 }
 
 .ss-tile {
@@ -405,9 +480,6 @@ main.fas-main {
   --range-color: var(--tint);
 }
 
-/* Sliders: a slim track with a filled part and a large, easy thumb. The
-   input itself is tall so it is easy to grab. */
-
 .ss-range {
   --fill: 50%;
   --range-color: var(--accent);
@@ -469,8 +541,6 @@ main.fas-main {
   outline-offset: 2px;
   border-radius: 999px;
 }
-
-/* Player bar */
 
 .ss-bar {
   flex-shrink: 0;
@@ -535,7 +605,7 @@ main.fas-main {
   border: 0;
   border-radius: 999px;
   /* Near-black on the accent passes contrast in both themes (6:1, 10:1). */
-  color: #111;
+  color: var(--on-player-action);
   background: radial-gradient(circle at 32% 26%, color-mix(in srgb, var(--accent) 72%, white), var(--accent) 70%);
   box-shadow: 0 14px 34px -10px color-mix(in srgb, var(--accent) 65%, transparent);
   cursor: pointer;
@@ -550,9 +620,6 @@ main.fas-main {
   opacity: 0;
   pointer-events: none;
 }
-
-/* While playing, a slow halo breathes around the button (about six breaths
-   a minute). Off for anyone who prefers reduced motion. */
 @media (prefers-reduced-motion: no-preference) {
   .ss-play[data-playing]::after {
     animation: ss-breathe 10s ease-in-out infinite;
@@ -570,8 +637,6 @@ main.fas-main {
   gap: 0.625rem;
   color: var(--muted);
 }
-
-/* Cards (binaural settings, notes) */
 
 .ss-card {
   --tint: var(--accent);
@@ -627,10 +692,6 @@ main.fas-main {
   margin: 0.75rem 0 0;
   color: var(--danger);
 }
-
-/* Short landscape screens (phones on their side): the player moves to a
-   column on the right, still under the thumb, and the heading is kept for
-   screen readers only to save height. */
 @media (orientation: landscape) and (max-height: 32rem) {
   .ss-player {
     flex-direction: row;
@@ -656,18 +717,6 @@ main.fas-main {
     gap: 1rem;
   }
 }
-
-/* Narrow tiles (two columns on the smallest phones): a little tighter so
-   names like "Fireplace" fit on one line. */
-@container (max-width: 22rem) {
-  .ss-tile { padding-inline: 0.625rem; }
-  .ss-tile-toggle { gap: 0.5rem; }
-  .ss-tile-icon { width: 2.25rem; height: 2.25rem; }
-  .ss-tile-icon svg { width: 22px; height: 22px; }
-  .ss-tile-name { font-size: 0.9375rem; }
-}
-
-/* Mixes screen */
 
 .ss-save {
   display: flex;
@@ -724,7 +773,7 @@ main.fas-main {
   border-radius: 999px;
   background: var(--accent);
   /* Near-black on the accent passes contrast in both themes (6:1, 10:1). */
-  color: #111;
+  color: var(--on-player-action);
   font: inherit;
   font-weight: 700;
   cursor: pointer;
@@ -820,7 +869,7 @@ main.fas-main {
   border: 0;
   border-radius: 999px;
   /* Near-black on the accent passes contrast in both themes (6:1, 10:1). */
-  color: #111;
+  color: var(--on-player-action);
   background: var(--accent);
   cursor: pointer;
 }
@@ -895,8 +944,6 @@ main.fas-main {
 .ss-chips + span {
   margin-left: 0.25rem;
 }
-
-/* Sleep timer */
 
 .ss-bar-top {
   display: flex;
@@ -999,8 +1046,6 @@ main.fas-main {
   border-color: color-mix(in srgb, var(--sky) 50%, transparent);
 }
 
-/* Background playback card */
-
 .ss-playback {
   margin-bottom: 0.25rem;
 }
@@ -1032,9 +1077,6 @@ main.fas-main {
   color: var(--muted);
   font-size: 0.8125rem;
 }
-
-/* A native checkbox drawn as a switch: still a real checkbox to keyboards
-   and screen readers (role="switch"). */
 .ss-switch {
   flex-shrink: 0;
   position: relative;
@@ -1087,8 +1129,6 @@ main.fas-main {
   list-style: disc;
 }
 
-/* Dialogs (native <dialog>, see Dialog.tsx) */
-
 .ss-dialog {
   /* Tailwind's reset zeroes margins; auto margins are what centre a modal <dialog>. */
   margin: auto;
@@ -1097,7 +1137,7 @@ main.fas-main {
   padding: 0;
   border: 1px solid var(--line-strong);
   border-radius: 1.25rem;
-  background: var(--card-gradient);
+  background: var(--popover);
   color: var(--ink);
   box-shadow: var(--shadow-soft);
 }
@@ -1149,4 +1189,22 @@ main.fas-main {
   background: var(--danger);
   /* White on the light red, black on the dark one: 4.6:1 and 8:1. */
   color: var(--paper);
+}
+
+@container (min-width: 30rem) {
+  .ss-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+@container (min-width: 44rem) {
+  .ss-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 0.75rem; }
+}
+@container (min-width: 58rem) {
+  .ss-grid { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+}
+@container (max-width: 22rem) {
+  .ss-tile { padding-inline: 0.625rem; }
+  .ss-tile-toggle { gap: 0.5rem; }
+  .ss-tile-icon { width: 2.25rem; height: 2.25rem; }
+  .ss-tile-icon svg { width: 22px; height: 22px; }
+  .ss-tile-name { font-size: 0.9375rem; }
+}
 }

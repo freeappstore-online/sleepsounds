@@ -35,7 +35,7 @@ export function Mixes({ onOpenSounds }: { onOpenSounds: () => void }) {
         </p>
       )}
       {presets.length === 0 ? (
-        <p className="ss-card text-[var(--muted)]">
+        <p className="ss-card text-muted">
           No saved mixes yet. Turn on a few sounds, set their volumes, then name the mix above to keep
           it.
         </p>

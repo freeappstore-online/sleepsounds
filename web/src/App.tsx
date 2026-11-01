@@ -60,14 +60,14 @@ function Screen({ path, navigate }: { path: string; navigate: (href: string) => 
   return (
     <>
       <PageHeader title="About" />
-      <p className="mt-4 text-[var(--muted)]">
+      <p className="mt-4 text-muted">
         Sleep Sounds is a noise machine: rain, ocean waves, a stream, wind, a fireplace, a fan, white,
         pink and brown noise, and binaural beats. Tap sounds to mix them and set each one's volume.
         Save favourite mixes by name on the Mixes screen; sign in to have
         them on all your devices. Every sound is generated on your device, so there are no audio files to download and it works
         offline. The sleep timer (the moon button) fades everything out gently over the last minute.
       </p>
-      <p className="mt-4 text-[var(--muted)]">
+      <p className="mt-4 text-muted">
         Binaural beats are offered as something to listen to, nothing more. Sleep Sounds makes no
         health or medical claims about them or any other sound. They need headphones; keep the volume
         low.
@@ -105,7 +105,7 @@ function Screen({ path, navigate }: { path: string; navigate: (href: string) => 
           </li>
         </ul>
       </section>
-      <p className="mt-4 text-[var(--muted)]">
+      <p className="mt-4 text-muted">
         Sleep Sounds is a free, MIT-licensed app on{' '}
         <a href="https://freeappstore.online" className="underline">
           FreeAppStore

@@ -176,7 +176,7 @@ function PlayerBar({ state, act }: Props) {
 function BinauralSettings({ state, act }: Props) {
   const id = useId()
   return (
-    <section className="ss-card" aria-labelledby={id} style={{ '--tint': 'var(--warning)' } as CSSProperties}>
+    <section className="ss-card [--tint:var(--warning)]" aria-labelledby={id}>
       <div className="ss-card-head">
         <h2 id={id} className="ss-card-title">
           {soundName('binaural')}
