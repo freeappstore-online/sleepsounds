@@ -137,6 +137,28 @@ for (const theme of ['dark', 'light'] as const) {
       await page.emulateMedia({ reducedMotion: 'reduce' })
     })
 
+    test('binaural playback value meets normal-text AA contrast', async ({ page }) => {
+      await open(page)
+      await tile(page, 'Binaural beats').click()
+      const value = page.locator('.ss-card-value')
+      await expect(value).toBeVisible()
+      await expect(value).toContainText('Hz')
+      const ratio = await value.evaluate((el) => {
+        const card = el.closest('.ss-card')!
+        const luminance = (color: string) => {
+          const channels = color.match(/[\d.]+/g)!.slice(0, 3).map(Number).map((n) => {
+            const s = n / 255
+            return s <= 0.04045 ? s / 12.92 : ((s + 0.055) / 1.055) ** 2.4
+          })
+          return channels[0] * 0.2126 + channels[1] * 0.7152 + channels[2] * 0.0722
+        }
+        const foreground = luminance(getComputedStyle(el).color)
+        const background = luminance(getComputedStyle(card).backgroundColor)
+        return (Math.max(foreground, background) + 0.05) / (Math.min(foreground, background) + 0.05)
+      })
+      expect(ratio).toBeGreaterThanOrEqual(4.5)
+    })
+
     for (const state of STATES) {
       test(state.name, async ({ page }) => {
         await state.setup(page)

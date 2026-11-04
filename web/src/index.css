@@ -104,6 +104,7 @@
   --mint-deep: #2b6b44;
   --success: #2f8f57;
   --warning: #c6862a;
+  --warning-text: #8a5918;
   --danger: #c74f43;
   --accent-gradient: linear-gradient(135deg, rgba(216, 111, 77, 0.18), rgba(255, 255, 255, 0.9));
   --warm-gradient: linear-gradient(180deg, rgba(255, 255, 255, 0.82), rgba(255, 212, 191, 0.24));
@@ -157,6 +158,7 @@
   --mint-deep: #d2f5df;
   --success: #74d49a;
   --warning: #f0bd6e;
+  --warning-text: #f0bd6e;
   --danger: #ff7a72;
   --accent-gradient: linear-gradient(135deg, rgba(255, 155, 118, 0.12), rgba(18, 18, 18, 0.95));
   --warm-gradient: linear-gradient(180deg, rgba(14, 14, 14, 0.96), rgba(59, 33, 25, 0.34));
@@ -661,7 +663,7 @@ main.fas-main {
 }
 
 .ss-card-value {
-  color: var(--tint);
+  color: var(--warning-text);
   font-weight: 650;
 }
 
